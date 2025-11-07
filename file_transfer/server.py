@@ -57,6 +57,15 @@ def handle_client(conn, addr):
         print(f"[↓] Sent '{filename}' to {addr}")
         conn.close()
 
+    elif command == "LIST":
+        files = os.listdir("uploads")
+        if files:
+            conn.send(f"FILELIST|{','.join(files)}".encode())
+        else:
+            conn.send(b"FILELIST|(empty)")
+        conn.close()
+
+
 def main():
     server = socket.socket()
     server.bind((HOST, PORT))
@@ -69,5 +78,5 @@ def main():
         threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
 
 if __name__ == "__main__":
-    threading.Thread(target=main, daemon=True)
+    threading.Thread(target=main, daemon=True).start()
     input("Press Enter to exit")

@@ -1,8 +1,26 @@
 import socket
 import os
 
-SERVER_HOST = "my.dprogger.ru"
+SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 5001
+
+def list_files():
+    s = socket.socket()
+    s.connect((SERVER_HOST, SERVER_PORT))
+    s.send(b"LIST")
+    
+    response = s.recv(4096).decode()
+    _, files = response.split('|')
+
+    if files == "(empty)":
+        print("[ ] No files on server.")
+    else:
+        print("[Server Files]")
+        for f in files.split(','):
+            print(" •", f)
+
+    s.close()
+
 
 def upload(filepath):
     filename = os.path.basename(filepath)
@@ -51,6 +69,7 @@ if __name__ == "__main__":
     print("Choose action:")
     print("1) Upload file")
     print("2) Download file")
+    print("3) List files on server")
     choice = input("> ")
 
     if choice == "1":
@@ -60,3 +79,6 @@ if __name__ == "__main__":
     elif choice == "2":
         filename = input("Enter file name to download: ")
         download(filename)
+
+    elif choice == '3':
+        list_files()

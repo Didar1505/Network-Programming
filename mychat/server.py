@@ -14,15 +14,20 @@ def remove_client(client:socket.socket):
         connections.remove(client)
 
 def handle(client:socket.socket, address):
-    while True:
-        try:
-            message = client.recv(1024).decode()
-            print(f"From {address}: {message}")
-            broadcast(message.encode())
-        except:
-            print(f"Client {address} left the chat")
-            remove_client(client)
-            break
+    try:
+        while True:
+            message = client.recv(1024)
+            if message:
+                message_send = f"From {address}: {message.decode()}"
+                print(message_send)
+                broadcast(message_send.encode(), client)
+            else:
+                remove_client(client)
+                break
+    except Exception as e:
+        print(e)
+        print(f"Client {address} left the chat")
+        remove_client(client)
 
 def main():
     try:
@@ -31,11 +36,16 @@ def main():
         server.listen(10)
         print("Server started")
 
-        client, address = server.accept()
-        connections.append(client)
-        print(f"Client with {address} connected to the server")
-        threading.Thread(target=handle, args=(client,address,), daemon=True).start()
-    except:
+        while True:
+            client, address = server.accept()
+            connections.append(client)
+            print(f"Client with {address} connected to the server")
+            threading.Thread(target=handle, args=(client,address,), daemon=True).start()
+        
+    except Exception as e:
+        print(e)
+    finally:
+        print(e)
         if len(connections) > 0:
             for conn in connections:
                 remove_client(conn)

@@ -5,6 +5,8 @@ def handle_messages(client:socket.socket):
     while True:
         try:
             message = client.recv(1024).decode()
+            if not message:
+                break
             print(message)
         except:
             client.close()
